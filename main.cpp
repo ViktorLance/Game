@@ -22,7 +22,7 @@ public:
 		image.loadFromFile("images/" + File);//загружаем в image изображение, вместо File
 											 //передадим то, что пропишем при создании объекта. В нашем случае это "hero.png". Получится
 											 //запись, идентичная image.loadFromFile("images/hero/png");
-		image.createMaskFromColor(Color(0, 0, 0)); //убираем ненужный темно-синий цвет
+		image.createMaskFromColor(Color(41, 33, 59)); //убираем ненужный темно-синий цвет
 		texture.loadFromImage(image); //заносим наше изображение в текстуру
 		sprite.setTexture(texture); //заливаем спрайт текстурой
 		x = X; y = Y; //координата появления спрайта
@@ -52,13 +52,53 @@ public:
 		speed = 0;    //обнуляем скорость, чтобы персонаж остановился.
 		sprite.setPosition(x, y); //выводим спрайт в позицию (x, y). 
 								  //бесконечно выводим в этой функции, иначе бы наш спрайт стоял на месте.
+		interactionWithMap();//вызываем функцию, отвечающую за взаимодействие с картой
+	}
+
+
+	void interactionWithMap()//ф-ция взаимодействия с картой
+	{
+		//Проходим только по тем тайлам (квадратикам размера 32*32), которые контактируют с игроком.
+		//Частично или полностью находятся под изображением игрока! 
+		for (int i = y / 37; i < (y + h) / 37; i++)
+			for (int j = x / 37; j<(x + w) / 37; j++) {
+				//”x” делим на 32, тем самым получаем левый квадратик, с которым персонаж соприкасается. 
+				//Он ведь больше размера 32*32, поэтому может одновременно стоять на нескольких тайлах
+				//Кроме того, j<(x + w)/32 - условие ограничения координат по “x”, т.е. координата самого
+				//правого квадрата, который соприкасается с персонажем. таким образом идем в цикле слева
+				// направо по иксу, проходя от левого квадрата (соприкасающегося с героем), до правого
+				// квадрата (соприкасающегося с героем)
+				if (TileMap[i][j] == '0')//если наш квадратик соответствует символу “0”
+										 //(стена), то проверяем "направление скорости" персонажа:
+				{
+					if (dy>0) {//если мы шли вниз,
+						y = i * 37 - h;//то стопорим (-h) координату “y” персонажа. 
+									   //сначала получаем координату “i” нашего квадратика на карте и 
+									   //затем вычитаем из высоты спрайта персонажа.
+					}
+					if (dy<0) {
+						y = i * 37 + 37;//аналогично с движением вверх.	
+					}
+					if (dx>0) {
+						x = j * 37 - w;//если идем вправо, то координата “x” равна 
+									   //стена (символ 0) минус ширина персонажа
+					}
+					if (dx < 0) {
+						x = j * 37 + 37; //аналогично идем влево
+					}
+				}
+				if (TileMap[i][j] == 's') { //если символ равен 's' (камень)
+					x = 300; y = 300;//какое-то действие...телепортация героя
+					TileMap[i][j] = ' ';//убираем камень
+				}
+			}
 	}
 };
 
 int main()
 {
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-	sf::RenderWindow window(sf::VideoMode(742, 555, desktop.bitsPerPixel), "Lesson 8");
+	sf::RenderWindow window(sf::VideoMode(742, 555, desktop.bitsPerPixel), "Lesson 9");
 
 	Image map_image;//объект изображения для карты
 	map_image.loadFromFile("images/mappac.png");//загружаем файл для карты
@@ -70,7 +110,7 @@ int main()
 	float CurrentFrame = 0;//хранит текущий кадр
 	Clock clock;
 
-	Player p("pacman.png", 270, 250, 35.0, 35.0);//создаем объект p класса player, задаем "hero.png" как имя файла+расширение, далее координата Х,У, ширина, высота.
+	Player p("pacman.png", 250, 250, 35.0, 35.0);//создаем объект p класса player, задаем "hero.png" как имя файла+расширение, далее координата Х,У, ширина, высота.
 
 	while (window.isOpen())
 	{
@@ -91,22 +131,22 @@ int main()
 									 //Заметьте - время мы уже здесь ни на что не умножаем и нигде не используем каждый раз
 			CurrentFrame += 0.005*time;
 			if (CurrentFrame > 2) CurrentFrame -= 2;
-			p.sprite.setTextureRect(IntRect(35 * int(CurrentFrame), 35, 33, 33)); //через объект p
-																				  //класса player меняем спрайт, делая анимацию 
+			p.sprite.setTextureRect(IntRect(35 * int(CurrentFrame), 35, 35, 35)); 				//через объект p
+																								//класса player меняем спрайт, делая анимацию 
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::Right) || (Keyboard::isKeyPressed(Keyboard::D)))) {
 			p.dir = 0; p.speed = 0.1;//направление вправо
 			CurrentFrame += 0.005*time;
 			if (CurrentFrame > 2) CurrentFrame -= 2;
-			p.sprite.setTextureRect(IntRect(35 * int(CurrentFrame), 0, 33, 33)); //через объект p 								//класса player меняем спрайт, делая анимацию 
+			p.sprite.setTextureRect(IntRect(35 * int(CurrentFrame), 0, 35, 35)); //через объект p 								//класса player меняем спрайт, делая анимацию 
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::Up) || (Keyboard::isKeyPressed(Keyboard::W)))) {
 			p.dir = 3; p.speed = 0.1;//направление вниз
 			CurrentFrame += 0.005*time;
 			if (CurrentFrame > 2) CurrentFrame -= 2;
-			p.sprite.setTextureRect(IntRect(70, 35 * int(CurrentFrame), 33, 33)); //через объект p 				//класса player меняем спрайт, делая анимацию (используя оператор точку)
+			p.sprite.setTextureRect(IntRect(70, 35 * int(CurrentFrame), 35, 35)); //через объект p 				//класса player меняем спрайт, делая анимацию (используя оператор точку)
 
 		}
 
@@ -114,7 +154,7 @@ int main()
 			p.dir = 2; p.speed = 0.1;//направление вверх
 			CurrentFrame += 0.005*time;
 			if (CurrentFrame > 2) CurrentFrame -= 2;
-			p.sprite.setTextureRect(IntRect(105, 35 * int(CurrentFrame), 33, 33));
+				p.sprite.setTextureRect(IntRect(105, 35 * int(CurrentFrame), 35, 35));
 		}
 
 		p.update(time); //оживляем объект “p” класса “Player” с помощью времени sfml,
@@ -133,7 +173,6 @@ int main()
 				if ((TileMap[i][j] == '0')) s_map.setTextureRect(IntRect(74, 0, 37, 37));//если
 																						 //встретили символ 0, то рисуем 3й квадратик
 
-
 				s_map.setPosition(j * 37, i * 37);//раскладываем квадратики в карту.
 
 				window.draw(s_map);//рисуем квадратики на экран
@@ -144,6 +183,7 @@ int main()
 	}
 	return 0;
 }
+
 
 
 
