@@ -1,9 +1,9 @@
 #include <iostream> 
 #include <SFML/Graphics.hpp>
+#include "map.h" //подключили код с картой
 
 using namespace sf;
 ////////////////////////////КЛАСС ИГРОКА////////////////////////
-////////////////////////////////////////////////////КЛАСС ИГРОКА////////////////////////
 class Player { // класс Игрока
 public:
 	float x, y, w, h, dx, dy, speed = 0; //координаты игрока х и у, высота и ширина, 
@@ -22,14 +22,14 @@ public:
 		image.loadFromFile("images/" + File);//загружаем в image изображение, вместо File
 											 //передадим то, что пропишем при создании объекта. В нашем случае это "hero.png". Получится
 											 //запись, идентичная image.loadFromFile("images/hero/png");
-		image.createMaskFromColor(Color(41, 33, 59)); //убираем ненужный темно-синий цвет
+		image.createMaskFromColor(Color(0, 0, 0)); //убираем ненужный темно-синий цвет
 		texture.loadFromImage(image); //заносим наше изображение в текстуру
 		sprite.setTexture(texture); //заливаем спрайт текстурой
 		x = X; y = Y; //координата появления спрайта
-		sprite.setTextureRect(IntRect(0, 0, w, h)); //Задаем спрайту один прямоугольник для
-													//вывода одного льва. IntRect – для приведения типов
+		sprite.setTextureRect(IntRect(0, 0, w, h));
+		//Задаем спрайту один прямоугольник для
+		//вывода одного льва. IntRect – для приведения типов
 	}
-
 
 	void update(float time) //функция "оживления/обновления" объекта класса. Принимает в себя 
 							//время SFML, вследствие чего работает бесконечно, давая персонажу движение.
@@ -58,12 +58,19 @@ public:
 int main()
 {
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-	sf::RenderWindow window(sf::VideoMode(640, 480, desktop.bitsPerPixel), "Lesson 7");
+	sf::RenderWindow window(sf::VideoMode(742, 555, desktop.bitsPerPixel), "Lesson 8");
+
+	Image map_image;//объект изображения для карты
+	map_image.loadFromFile("images/mappac.png");//загружаем файл для карты
+	Texture map;//текстура карты
+	map.loadFromImage(map_image);//заряжаем текстуру картинкой
+	Sprite s_map;//создаём спрайт для карты
+	s_map.setTexture(map);//заливаем текстуру спрайтом
 
 	float CurrentFrame = 0;//хранит текущий кадр
 	Clock clock;
 
-	Player p("pacman.png", 250, 250, 35.0, 35.0);//создаем объект p класса player, задаем "hero.png" как имя файла+расширение, далее координата Х,У, ширина, высота.
+	Player p("pacman.png", 270, 250, 35.0, 35.0);//создаем объект p класса player, задаем "hero.png" как имя файла+расширение, далее координата Х,У, ширина, высота.
 
 	while (window.isOpen())
 	{
@@ -84,7 +91,7 @@ int main()
 									 //Заметьте - время мы уже здесь ни на что не умножаем и нигде не используем каждый раз
 			CurrentFrame += 0.005*time;
 			if (CurrentFrame > 2) CurrentFrame -= 2;
-			p.sprite.setTextureRect(IntRect(35 * int(CurrentFrame), 35, 35, 35)); //через объект p
+			p.sprite.setTextureRect(IntRect(35 * int(CurrentFrame), 35, 33, 33)); //через объект p
 																				  //класса player меняем спрайт, делая анимацию 
 		}
 
@@ -92,14 +99,14 @@ int main()
 			p.dir = 0; p.speed = 0.1;//направление вправо
 			CurrentFrame += 0.005*time;
 			if (CurrentFrame > 2) CurrentFrame -= 2;
-			p.sprite.setTextureRect(IntRect(35 * int(CurrentFrame), 0, 35, 35)); //через объект p 								//класса player меняем спрайт, делая анимацию 
+			p.sprite.setTextureRect(IntRect(35 * int(CurrentFrame), 0, 33, 33)); //через объект p 								//класса player меняем спрайт, делая анимацию 
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::Up) || (Keyboard::isKeyPressed(Keyboard::W)))) {
 			p.dir = 3; p.speed = 0.1;//направление вниз
 			CurrentFrame += 0.005*time;
 			if (CurrentFrame > 2) CurrentFrame -= 2;
-			p.sprite.setTextureRect(IntRect(70, 35 * int(CurrentFrame), 35, 35)); //через объект p 				//класса player меняем спрайт, делая анимацию (используя оператор точку)
+			p.sprite.setTextureRect(IntRect(70, 35 * int(CurrentFrame), 33, 33)); //через объект p 				//класса player меняем спрайт, делая анимацию (используя оператор точку)
 
 		}
 
@@ -107,18 +114,37 @@ int main()
 			p.dir = 2; p.speed = 0.1;//направление вверх
 			CurrentFrame += 0.005*time;
 			if (CurrentFrame > 2) CurrentFrame -= 2;
-			p.sprite.setTextureRect(IntRect(105, 35 * int(CurrentFrame),  35, 35));
+			p.sprite.setTextureRect(IntRect(105, 35 * int(CurrentFrame), 33, 33));
 		}
 
 		p.update(time); //оживляем объект “p” класса “Player” с помощью времени sfml,
 						// передавая время в качестве параметра функции update. 
 
 		window.clear();
+
+		/////////////////////////////Рисуем карту/////////////////////
+		for (int i = 0; i < HEIGHT_MAP; i++)
+			for (int j = 0; j < WIDTH_MAP; j++)
+			{
+				if (TileMap[i][j] == ' ')  s_map.setTextureRect(IntRect(0, 0, 37, 37)); //если
+																						//встретили символ пробел, то рисуем 1-й квадратик
+				if (TileMap[i][j] == 's')  s_map.setTextureRect(IntRect(37, 0, 37, 37));//если
+																						//встретили символ s, то рисуем 2й квадратик
+				if ((TileMap[i][j] == '0')) s_map.setTextureRect(IntRect(74, 0, 37, 37));//если
+																						 //встретили символ 0, то рисуем 3й квадратик
+
+
+				s_map.setPosition(j * 37, i * 37);//раскладываем квадратики в карту.
+
+				window.draw(s_map);//рисуем квадратики на экран
+			}
+
 		window.draw(p.sprite);//рисуем спрайт объекта “p” класса “Player”
 		window.display();
 	}
 	return 0;
 }
+
 
 
 
