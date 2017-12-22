@@ -1,4 +1,5 @@
 #include <iostream> 
+#include <sstream>
 #include <SFML/Graphics.hpp>
 #include "map.h" //подключили код с картой
 
@@ -8,7 +9,7 @@ class Player { // класс »грока
 public:
 	float x, y, w, h, dx, dy, speed = 0; //координаты игрока х и у, высота и ширина, 
 										 //ускорение (по х и по у), сама скорость
-	int dir = 0; //направление (direction) движени€ игрока
+	int dir = 0,playerScore = 0; //направление (direction) движени€ игрока
 	std::string File; //файл с расширением
 	Image image;//сфмл изображение
 	Texture texture;//сфмл текстура
@@ -26,7 +27,7 @@ public:
 		texture.loadFromImage(image); //заносим наше изображение в текстуру
 		sprite.setTexture(texture); //заливаем спрайт текстурой
 		x = X; y = Y; //координата по€влени€ спрайта
-		sprite.setTextureRect(IntRect(0, 0, w, h));
+		sprite.setTextureRect(IntRect(0.0, 0.0, w, h));
 		//«адаем спрайту один пр€моугольник дл€
 		//вывода одного льва. IntRect Ц дл€ приведени€ типов
 	}
@@ -88,7 +89,7 @@ public:
 					}
 				}
 				if (TileMap[i][j] == 's') { //если символ равен 's' (камень)
-					x = 300; y = 300;//какое-то действие...телепортаци€ геро€
+					playerScore++;//какое-то действие...телепортаци€ геро€
 					TileMap[i][j] = ' ';//убираем камень
 				}
 			}
@@ -97,8 +98,16 @@ public:
 
 int main()
 {
+
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 	sf::RenderWindow window(sf::VideoMode(742, 555, desktop.bitsPerPixel), "Lesson 9");
+
+	Font font;//шрифт 
+	font.loadFromFile("mysor/CyrilicOld.ttf");//передаем нашему шрифту файл шрифта
+	Text text("", font, 20);//создаем объект текст. закидываем в объект текст строку, шрифт, размер шрифта(в пиксел€х);//сам объект текст (не строка)
+	text.setFillColor(Color::Red);//покрасили текст в красный. если убрать эту строку, то по умолчанию он белый
+	text.setStyle(sf::Text::Bold | sf::Text::Underlined);//жирный и подчеркнутый текст. по умолчанию он "худой":)) и не подчеркнутый
+
 
 	Image map_image;//объект изображени€ дл€ карты
 	map_image.loadFromFile("images/mappac.png");//загружаем файл дл€ карты
@@ -177,6 +186,12 @@ int main()
 
 				window.draw(s_map);//рисуем квадратики на экран
 			}
+		std::ostringstream playerScoreString;  // объ€вили переменную
+		playerScoreString << p.playerScore;//занесли в нее число очков, то есть формируем строку
+		text.setString("—обрано камней:" + playerScoreString.str());//задаем строку тексту и
+																	// вызываем сформированную выше строку методом .str() 
+		text.setPosition(50, 50);//задаем позицию текста, отступа€ от центра камеры
+		window.draw(text);//рисую этот текст
 
 		window.draw(p.sprite);//рисуем спрайт объекта УpФ класса УPlayerФ
 		window.display();
