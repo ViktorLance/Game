@@ -11,7 +11,7 @@ private:
 public:
 	float  w, h, dx, dy, speed; //координаты игрока х и у, высота и ширина, 
 										 //ускорение (по х и по у), сама скорость
-	int dir,playerScore, health; //направление (direction) движени€ игрока, игровые очки, переменна€ дл€ хранени€ кол-ва жизни
+	int dir,playerScore, health, maxObj; //направление (direction) движени€ игрока, игровые очки, переменна€ дл€ хранени€ кол-ва жизни
 	bool life;//жизнь перса
 	std::string File; //файл с расширением
 	Image image;//сфмл изображение
@@ -23,6 +23,7 @@ public:
 	Player(std::string F, float X, float Y, float W, float H) {
 		dir = 0; speed = 0; playerScore = 0; health = 100; dy = 0; dx = 0;
 		life = true;
+		maxObj = 0;
 		File = F; //им€ файла+расширение
 		w = W; h = H; //высота и ширина
 		image.loadFromFile("images/" + File);//загружаем в image изображение, вместо File
@@ -138,6 +139,8 @@ int main()
 
 	Player p("pacman.png", 250, 250, 35.0, 35.0);//создаем объект p класса player, задаем "hero.png" как им€ файла+расширение, далее координата ’,”, ширина, высота.
 
+	int createObjectForMapTimer = 0;//ѕеременна€ под врем€ дл€ генерировани€ камней
+
 	while (window.isOpen())
 	{
 		float time = clock.getElapsedTime().asMicroseconds();
@@ -147,6 +150,18 @@ int main()
 		//ѕерезагружать как time его не надо. оно не обновл€ет логику игры
 		clock.restart();
 		time = time / 800;
+
+		createObjectForMapTimer += time;//наращиваем таймер
+		
+		
+		if (createObjectForMapTimer > 60000) { //60000 = 1 min
+			randomMapGenerate();
+			//генераци€ health
+			createObjectForMapTimer = 1;//обнул€ем health
+		}
+		
+
+
 
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -215,7 +230,7 @@ int main()
 		std::ostringstream playerHealthString, gameTimeString;//объ€вили переменную здоровь€ и времени
 		playerHealthString << p.health; gameTimeString << gameTime;//формируем строку
 		text.setString("«доровье: " + playerHealthString.str() + "\n¬рем€ игры: " + gameTimeString.str());//задаем строку тексту
-		text.setPosition(50, 50);//задаем позицию текста
+		text.setPosition(50, 10);//задаем позицию текста
 		window.draw(text);//рисуем этот текст
 
 		window.draw(p.sprite);//рисуем спрайт объекта УpФ класса УPlayerФ
