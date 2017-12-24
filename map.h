@@ -1,4 +1,4 @@
-///*
+
 #include <SFML\Graphics.hpp>
 const int HEIGHT_MAP = 15;//размер карты по высоте
 const int WIDTH_MAP = 20;//размер карты по ширине 
@@ -41,28 +41,3 @@ void randomMapGenerate() {//рандомно расставляем камни
 	}
 
 };
-//*/
-
-/*
-#include <SFML\Graphics.hpp>
-const int HEIGHT_MAP = 15;//размер карты высота
-const int WIDTH_MAP = 20;//размер карты ширина 
-
-std::string TileMap[HEIGHT_MAP] = {
-	"00000000000000000000",
-	"0                  0",
-	"0   s  s       f   0",
-	"0                  0",
-	"0     s            0",
-	"0             h    0",
-	"0  h               0",
-	"0       f          0",
-	"0 s                0",
-	"0          h       0",
-	"0      s           0",
-	"0                  0",
-	"0  h           f   0",
-	"0                  0",
-	"00000000000000000000",
-};
-*/
