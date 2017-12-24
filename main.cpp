@@ -1,4 +1,3 @@
-//*
 #include <iostream> 
 #include <sstream>
 #include <SFML/Graphics.hpp>
@@ -134,12 +133,18 @@ int main()
 
 	float CurrentFrame = 0;//хранит текущий кадр
 	Clock clock;
+	Clock gameTimeClock;//хранит игровое врем€
+	int gameTime = 0; //игровое врем€
 
 	Player p("pacman.png", 250, 250, 35.0, 35.0);//создаем объект p класса player, задаем "hero.png" как им€ файла+расширение, далее координата ’,”, ширина, высота.
 
 	while (window.isOpen())
 	{
 		float time = clock.getElapsedTime().asMicroseconds();
+
+		if (p.life) gameTime = gameTimeClock.getElapsedTime().asSeconds();
+		//игровое врем€ в секундах идЄт вперед, пока жив игрок. 
+		//ѕерезагружать как time его не надо. оно не обновл€ет логику игры
 		clock.restart();
 		time = time / 800;
 
@@ -207,16 +212,14 @@ int main()
 
 				window.draw(s_map);//рисуем квадратики на экран
 			}
-		std::ostringstream playerHealthString;  // объ€вили переменную
-		playerHealthString << p.health;//занесли в нее число очков, то есть формируем строку
-		text.setString("Health:" + playerHealthString.str());//задаем строку тексту и
-																	// вызываем сформированную выше строку методом .str() 
-		text.setPosition(50, 10);//задаем позицию текста, отступа€ от центра камеры
-		window.draw(text);//рисую этот текст
+		std::ostringstream playerHealthString, gameTimeString;//объ€вили переменную здоровь€ и времени
+		playerHealthString << p.health; gameTimeString << gameTime;//формируем строку
+		text.setString("«доровье: " + playerHealthString.str() + "\n¬рем€ игры: " + gameTimeString.str());//задаем строку тексту
+		text.setPosition(50, 50);//задаем позицию текста
+		window.draw(text);//рисуем этот текст
 
 		window.draw(p.sprite);//рисуем спрайт объекта УpФ класса УPlayerФ
 		window.display();
 	}
 	return 0;
 }
-//*/
