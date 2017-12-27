@@ -5,51 +5,11 @@
 #include "map.h" //подключили код с картой
 #include <list>
 #include "Global.h"
+#include "Entity.h"
+
 
 
 using namespace sf;
-
-//////////////////////////// Ћј—— —”ўЌќ—“№////////////////////////
-class Entity {
-public:
-	enum { left, right, up, down, stay } state;// тип перечислени€ - состо€ние объекта
-	float dx, dy, x, y, speed, moveTimer;//добавили переменную таймер дл€ будущих целей
-	int w, h, health; //размер спрайта,переменна€ УhealthФ, хран€ща€ жизни игрока
-	bool life; //переменна€ УlifeФ жизнь, логическа€
-	Texture texture;//сфмл текстура
-	Sprite sprite;//сфмл спрайт 
-	float CurrentFrame;//хранит текущий кадр
-	std::string name;//враги могут быть разные, врагов можно различать по именам
-					 //каждому можно дать свое действие в update() в зависимости от имени
-
-	Entity(Image &image, float X, float Y, int W, int H, std::string Name) {
-		x = X; y = Y; //координата по€влени€ спрайта
-		w = W; h = H; //размер спрайта
-		name = Name; // им€ персонажа
-		moveTimer = 0; //
-		dx = 0; dy = 0;
-		speed = 0;
-		CurrentFrame = 0;
-		health = 100;
-		life = true; //инициализировали логическую переменную жизни, герой жив
-		image.createMaskFromColor(Color(0, 0, 0)); //убираем ненужный black color, в предке, т.к. у всех техтур надо убрать черный цвет.
-		texture.loadFromImage(image); //заносим наше изображение в текстуру
-		sprite.setTexture(texture); //заливаем спрайт текстурой
-	}
-
-	FloatRect getRect() {//метод получени€ пр€моугольника. его коорд, размеры (шир,высот).
-		FloatRect FR(x, y, w, h); // переменна€ FR типа FloatRect
-		return FR;
-		//return FloatRect(x, y, w, h);
-		//“ип данных (класс) "sf::FloatRect" позвол€ет хранить четыре координаты пр€моугольника
-		//в нашей игре это координаты текущего расположени€ тайла на карте
-		//далее это позволит спросить, есть ли ещЄ какой-либо тайл на этом месте 
-		//эта ф-ци€ нужна дл€ проверки пересечений 
-	}
-	virtual void update(float time) = 0;
-};
-
-
 
 //////////////////////////// Ћј—— »√–ќ ј////////////////////////
 class Player:public Entity { // класс »грока
@@ -65,7 +25,7 @@ public:
 			  sprite.setTextureRect(IntRect(0, 0, w, h)); //«адаем спрайту один пр€моугольник дл€ вывода одного игрока. IntRect Ц дл€ приведени€ типов
 		  }
 	}
-
+	
 	void control() { // управление персом
 		if (Keyboard::isKeyPressed(Keyboard::Left)) {
 			state = left;
