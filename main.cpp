@@ -2,6 +2,8 @@
 #include <sstream>
 #include <SFML/Graphics.hpp>
 #include "map.h" //подключили код с картой
+#include <list>
+
 
 using namespace sf;
 
@@ -285,12 +287,30 @@ int main()
 
 	Image heroImage;
 	heroImage.loadFromFile("images/pacman.png");// загрузка изображени€ игрока
-	Image EnemyImage;
-	EnemyImage.loadFromFile("images/enemypac.png"); // загружаем изображение врага
+	Image EnemyImage[3];
+	EnemyImage[2].loadFromFile("images/enemypac.png"); // загружаем изображение врага
+	EnemyImage[1].loadFromFile("images/enemypac1.png"); // загружаем изображение врага
+	EnemyImage[0].loadFromFile("images/enemypac2.png"); // загружаем изображение врага
 
 
 	Player p(heroImage, 250, 250, 35, 35, "Pacman");
-	Enemy Enemy(EnemyImage, 250, 200, 35, 35, "Enemy1");//объект класса врага
+	
+	std::list<Entity*>  enemies; //список врагов
+	std::list<Entity*>::iterator it; //итератор чтобы проходить по элементам списка
+
+	const int ENEMY_COUNT = 3;	//максимальное количество врагов в игре
+	int enemiesCount = 0;      //текущее количество врагов в игре
+
+							   //«аполн€ем список объектами врагами
+	for (int i = 0; i < ENEMY_COUNT ; i++)
+	{
+		float xr = 150 + rand() % 500; //случайна€ координата врага на поле игры по оси УxФ
+		float yr = 150 + rand() % 350; //случайна€ координата врага на поле игры по оси УyФ
+									   //создаем врагов и помещаем в список
+		enemies.push_back(new Enemy(EnemyImage[i], xr, yr, 35, 35, "Enemy1"));
+		enemiesCount += 1; //увеличили счЄтчик врагов
+	}
+
 
 	int createObjectForMapTimer = 0;//ѕеременна€ под врем€ дл€ генерировани€ камней
 
@@ -321,7 +341,26 @@ int main()
 
 		p.update(time); //оживл€ем объект УpФ класса УPlayerФ с помощью времени sfml,
 						// передава€ врем€ в качестве параметра функции update. 
-		Enemy.update(time);//оживл€ем объект врага
+
+						//оживл€ем врагов
+		for (it = enemies.begin(); it != enemies.end(); it++)
+		{
+			(*it)->update(time); //запускаем метод update()
+		}
+
+		//ѕроверка пересечени€ игрока с врагами
+		//≈сли пересечение произошло, то "health = 0", игрок обездвижеваетс€ и 
+		//выводитс€ сообщение "you are lose"
+		if (p.life == true) {//если игрок жив
+			for (it = enemies.begin(); it != enemies.end(); it++) {//бежим по списку врагов
+				if ((p.getRect().intersects((*it)->getRect())) && ((*it)->name == "Enemy1"))
+				{
+					p.health = 0;
+					std::cout << "you are lose";
+				}
+			}
+		}
+
 		window.clear();// чистим экран 
 	
 	/////////////////////////////–исуем карту/////////////////////
@@ -362,7 +401,12 @@ int main()
 
 
 	window.draw(p.sprite);//рисуем спрайт объекта УpФ класса УPlayerФ
-	window.draw(Enemy.sprite);//рисуем спрайт объекта УpФ класса УPlayerФ
+						  //рисуем врагов
+	for (it = enemies.begin(); it != enemies.end(); it++)
+	{
+		window.draw((*it)->sprite); //рисуем enemies объекты
+	}
+
 	window.display();
 }
 	return 0;
