@@ -1,8 +1,10 @@
+
 #include <iostream> 
 #include <sstream>
 #include <SFML/Graphics.hpp>
 #include "map.h" //подключили код с картой
 #include <list>
+#include "Global.h"
 
 
 using namespace sf;
@@ -53,11 +55,11 @@ public:
 class Player:public Entity { // класс »грока
 public:
 
-	int  money, photo; // игровые очки, кол-во кадров дл€ анимации движени€,переменна€ с "жизнью".
+	int  money, photo, money1; // игровые очки, кол-во кадров дл€ анимации движени€,переменна€ с "жизнью", кол-во очков до победы
 
 				  // онструктор с параметрами дл€ класса Player
 	Player(Image &image, float X, float Y, float W, float H, std::string Name ) :Entity(image, X, Y, W, H, Name) {
-		  money = -4;  photo = 2; 
+		money = -4;  photo = 2; money1 = 1000;
 		  state = stay; // объект стоит на месте
 		  if (name == "Pacman") {
 			  sprite.setTextureRect(IntRect(0, 0, w, h)); //«адаем спрайту один пр€моугольник дл€ вывода одного игрока. IntRect Ц дл€ приведени€ типов
@@ -362,50 +364,62 @@ int main()
 		}
 
 		window.clear();// чистим экран 
-	
+
 	/////////////////////////////–исуем карту/////////////////////
-	for (int i = 0; i < HEIGHT_MAP; i++)
-		for (int j = 0; j < WIDTH_MAP; j++)
-		{
-			if (TileMap[i][j] == ' ')  s_map.setTextureRect(IntRect(0, 0, 37, 37)); //если встретили символ пробел, то рисуем 1-й квадратик - свободную клетку пол€
-			if (TileMap[i][j] == 'h')  s_map.setTextureRect(IntRect(37, 0, 37, 37));//если встретили символ "h", то рисуем 2й квадратик - money 
-			if ((TileMap[i][j] == '0')) s_map.setTextureRect(IntRect(74, 0, 37, 37));//если "0" ... - stena
+		for (int i = 0; i < HEIGHT_MAP; i++)
+			for (int j = 0; j < WIDTH_MAP; j++)
+			{
+				if (TileMap[i][j] == ' ')  s_map.setTextureRect(IntRect(0, 0, 37, 37)); //если встретили символ пробел, то рисуем 1-й квадратик - свободную клетку пол€
+				if (TileMap[i][j] == 'h')  s_map.setTextureRect(IntRect(37, 0, 37, 37));//если встретили символ "h", то рисуем 2й квадратик - money 
+				if ((TileMap[i][j] == '0')) s_map.setTextureRect(IntRect(74, 0, 37, 37));//если "0" ... - stena
 
 
 
-			s_map.setPosition(j * 37, i * 37);//раскладываем квадратики в карту.
+				s_map.setPosition(j * 37, i * 37);//раскладываем квадратики в карту.
 
-			window.draw(s_map);//рисуем квадратики на экран
-		}
-	std::ostringstream playerMoneyString, gameTimeString, playerHealthString;//объ€вили переменную здоровь€ и времени
-	playerMoneyString << p.money; gameTimeString << gameTime, playerHealthString << p.health;;//формируем строки
+				window.draw(s_map);//рисуем квадратики на экран
+			}
+		std::ostringstream playerMoneyString, gameTimeString, playerHealthString;//объ€вили переменную здоровь€ и времени
+		playerMoneyString << p.money; gameTimeString << gameTime, playerHealthString << p.health;;//формируем строки
 
-	text.setString("¬рем€ игры: " + gameTimeString.str());
-	text.setPosition(500, 10);//задаем позицию текста
-	window.draw(text);//рисуем этот текст
-
-	text.setString("Money: " + playerMoneyString.str());
-	text.setPosition(50, 10);//задаем позицию текста
-	window.draw(text);//рисуем этот текст
-
-	text.setString("Health: " + playerHealthString.str());
-	text.setPosition(250, 10);//задаем позицию текста
-	window.draw(text);//рисуем этот текст
-
-	if (p.money > 1000) {// ну тип игру прошли, если 1000 рублей собрали...
-		window.clear();
-		text.setString("YOU WIN");
-		text.setPosition(300, 200);//задаем позицию текста
+		text.setString("¬рем€ игры: " + gameTimeString.str());
+		text.setPosition(500, 10);//задаем позицию текста
 		window.draw(text);//рисуем этот текст
-	}
+
+		text.setString("Money: " + playerMoneyString.str());
+		text.setPosition(50, 10);//задаем позицию текста
+		window.draw(text);//рисуем этот текст
+
+		text.setString("Health: " + playerHealthString.str());
+		text.setPosition(250, 10);//задаем позицию текста
+		window.draw(text);//рисуем этот текст
+
+		if (p.health <= 1 ) {// ну тип игру прошли, если 1000 рублей собрали...
+			window.clear();
+			text.setString("YOU LOSE");
+			text.setPosition(300, 200);//задаем позицию текста
+			window.draw(text);//рисуем этот текст
+		}
+
+		if (p.money > p.money1) {// ну тип игру прошли, если 1000 рублей собрали...
+			window.clear();
+			text.setString("YOU WIN");
+			text.setPosition(300, 200);//задаем позицию текста
+			window.draw(text);//рисуем этот текст
+		}
 
 
-	window.draw(p.sprite);//рисуем спрайт объекта УpФ класса УPlayerФ
-						  //рисуем врагов
-	for (it = enemies.begin(); it != enemies.end(); it++)
-	{
-		window.draw((*it)->sprite); //рисуем enemies объекты
-	}
+		if ((p.money < p.money1) && (p.health > 0)) {
+			window.draw(p.sprite);//рисуем спрайт объекта УpФ класса УPlayerФ
+								  //рисуем врагов
+		}
+		if ((p.money < p.money1) && (p.health > 0)) {
+			for (it = enemies.begin(); it != enemies.end(); it++)
+			{
+				window.draw((*it)->sprite); //рисуем enemies объекты
+			}
+		}
+		
 
 	window.display();
 }
