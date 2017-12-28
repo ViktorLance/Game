@@ -11,6 +11,8 @@ using namespace sf;
 
 Player::Player(Image &image, float X, float Y, float W, float H, std::string Name) :Entity(image, X, Y, W, H, Name)
 {
+	
+
 		money = -4;  photo = 2; money1 = 1000;
 		state = stay; // объект стоит на месте
 		if (name == "Pacman") {
