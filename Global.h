@@ -1,6 +1,6 @@
 #ifndef global_h
 #define global_h
 
-extern std::string TileMap[HEIGHT_MAP];
-
+extern std::string TileMap[HEIGHT_MAP];//внешн€€ переменна€ дл€ отображени€ на карте элементов 
+//она необходима, т.к. используетс€ в классе игрока и главной функции, т.е. проиходит конфлик двух переменных и их переопределение.
 #endif

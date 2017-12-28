@@ -1,7 +1,7 @@
 
 #include <iostream> 
 #include <sstream>
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp> // подключаем СФМЛ библиотеку
 #include "map.h" //подключили код с картой
 #include <list>
 #include "Global.h"
@@ -15,13 +15,13 @@ int main()
 {
 
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-	sf::RenderWindow window(sf::VideoMode(742, 555, desktop.bitsPerPixel), "PACMAN");
+	sf::RenderWindow window(sf::VideoMode(742, 555, desktop.bitsPerPixel), "PACMAN"); // создаем переменную window, в скобках конструктор с параметрами (размер окна и глубина пикселей)
 
 	Font font;//шрифт 
 	font.loadFromFile("mysor/CyrilicOld.ttf");//передаем нашему шрифту файл шрифта
 	Text text("", font, 20);//создаем объект текст. закидываем в объект текст строку, шрифт, размер шрифта(в пикселях);//сам объект текст (не строка)
 	text.setFillColor(Color::White);//покрасили текст в красный. если убрать эту строку, то по умолчанию он белый
-	text.setStyle(sf::Text::Bold | sf::Text::Underlined);//жирный и подчеркнутый текст. по умолчанию он "худой":)) и не подчеркнутый
+	text.setStyle(sf::Text::Bold);//жирный  текст. 
 
 
 	Image map_image;//объект изображения для карты
@@ -37,17 +37,17 @@ int main()
 	int gameTime = 0; //игровое время
 
 
-	Image EnemyImage[3];
+	Image EnemyImage[3];//массив перменных для врагов
 	EnemyImage[2].loadFromFile("images/enemypac.png"); // загружаем изображение врага
 	EnemyImage[1].loadFromFile("images/enemypac1.png"); // загружаем изображение врага
 	EnemyImage[0].loadFromFile("images/enemypac2.png"); // загружаем изображение врага
 
-	Image image_pac;
+	Image image_pac;// переменная для изображения игрока
 	image_pac.loadFromFile("images/pacman.png");// загрузка изображения игрока
 
-	Player p(image_pac, 250, 250, 35, 35, "Pacman");
+	Player p(image_pac, 250, 250, 35, 35, "Pacman"); // переменная игрока
 
-	std::list<Entity*>  enemies; //список врагов
+	std::list<Entity*>  enemies; //список врагов, указателей на объекты врагов
 	std::list<Entity*>::iterator it; //итератор чтобы проходить по элементам списка
 
 	const int ENEMY_COUNT = 3;	//максимальное количество врагов в игре
@@ -136,11 +136,11 @@ int main()
 		text.setString("Money: " + playerMoneyString.str());
 		text.setPosition(50, 10);//задаем позицию текста
 		window.draw(text);//рисуем этот текст
-
+		
 		text.setString("Health: " + playerHealthString.str());
 		text.setPosition(250, 10);//задаем позицию текста
 		window.draw(text);//рисуем этот текст
-
+		
 		if (p.health <= 1) {// ну тип игру прошли, если 1000 рублей собрали...
 			window.clear();
 			text.setString("YOU LOSE");
@@ -165,8 +165,13 @@ int main()
 				window.draw((*it)->sprite); //рисуем enemies объекты
 			}
 		}
-
 		window.display();
+	}
+	
+	if (p.life == false) { // освобождение динамической памяти
+		for (it = enemies.begin(); it != enemies.end(); ++it)		{
+			delete  *it;
+		}
 	}
 	return 0;
 }

@@ -13,7 +13,6 @@ Entity::Entity(Image &image, float X, float Y, int W, int H, std::string Name)
 	x = X; y = Y; //координата появления спрайта
 	w = W; h = H; //размер спрайта
 	name = Name; // имя персонажа
-	moveTimer = 0; //
 	dx = 0; dy = 0;
 	speed = 0;
 	CurrentFrame = 0;
@@ -22,4 +21,4 @@ Entity::Entity(Image &image, float X, float Y, int W, int H, std::string Name)
 	image.createMaskFromColor(Color(0, 0, 0)); //убираем ненужный black color, в предке, т.к. у всех техтур надо убрать черный цвет.
 	texture.loadFromImage(image); //заносим наше изображение в текстуру
 	sprite.setTexture(texture); //заливаем спрайт текстурой
-};
+}

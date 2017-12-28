@@ -3,7 +3,7 @@
 
 using namespace sf;
 class Player :public Entity { 
-public:// класс їгрока
+public:// класс Bгрока
 	int  money, photo, money1; // игровые очки, кол-во кадров дл€ анимации движени€,переменна€ с "жизнью", кол-во очков до победы
 
 							   // онструктор с параметрами дл€ класса Player
