@@ -6,110 +6,10 @@
 #include <list>
 #include "Global.h"
 #include "Entity.h"
-
-
+#include "Player.h"
+#include "Enemy.h"
 
 using namespace sf;
-
-
-
-
-////////////////////////////КЛАСС ВРАГА////////////////////////
-class Enemy :public Entity {
-public:
-	int direction;//направление движения врага
-	Enemy(Image &image, float X, float Y, int W, int H, std::string Name) :Entity(image, X, Y, W, H, Name) {
-		if (name == "Enemy1") {
-			//Задаем спрайту один прямоугольник для
-			//вывода одного игрока. IntRect – для приведения типов
-			sprite.setTextureRect(IntRect(0, 0, w, h));
-			direction = rand() % (3); //Направление движения врага задаём случайным образом
-									  //через генератор случайных чисел
-			speed = 0.1;//даем скорость.этот объект всегда двигается
-			dx = speed;
-		}
-	}
-
-	void checkCollisionWithMap(float Dx, float Dy)//ф-ция проверки столкновений с картой
-	{
-		for (int i = y / 37; i < (y + h) / 37; i++)//проходимся по элементам карты
-			for (int j = x / 37; j<(x + w) / 37; j++)
-			{
-				if (TileMap[i][j] == '0')//если элемент - тайлик земли
-				{
-					if (Dy > 0) {
-						y = i * 37 - h;  dy = -0.1;
-						direction = rand() % (4); //Направление движения врага
-					}//по Y 
-					if (Dy < 0) {
-						y = i * 37 + 37; dy = 0.1;
-						direction = rand() % (4);//Направление движения врага 
-					}//столкновение с верхними краями 
-					if (Dx > 0) {
-						x = j * 37 - w; dx = -0.1;
-						direction = rand() % (4);//Направление движения врага 
-					}//с правым краем карты
-					if (Dx < 0) {
-						x = j * 37 + 37; dx = 0.1;
-						direction = rand() % (4); //Направление движения врага
-					}// с левым краем карты
-				}
-			}
-	}
-
-	void update(float time)
-	{
-		if (name == "Enemy1") {//для персонажа с таким именем логика будет такой
-
-			if (life) {//проверяем, жив ли герой
-				switch (direction)//делаются различные действия в зависимости от состояния
-				{
-				case 0: {//состояние идти вправо
-					dx = speed;
-					CurrentFrame += 0.005*time;
-					if (CurrentFrame > 2) CurrentFrame -= 2;
-					sprite.setTextureRect(IntRect(0 , 0, 35, 35));
-					break;
-				}
-				case 1: {//состояние идти влево
-					dx = -speed;
-					CurrentFrame += 0.005*time;
-					if (CurrentFrame > 2) CurrentFrame -= 2;
-					sprite.setTextureRect(IntRect(33 , 0, 35, 35));
-					break;
-				}
-				case 2: {//идти вверх
-					dy = -speed;
-					CurrentFrame += 0.005*time;
-					if (CurrentFrame > 2) CurrentFrame -= 2;
-					sprite.setTextureRect(IntRect(65, 0, 35, 35));
-					break;
-				}
-				case 3: {//идти вниз
-					dy = speed;
-					CurrentFrame += 0.005*time;
-					if (CurrentFrame > 2) CurrentFrame -= 2;
-					sprite.setTextureRect(IntRect(100, 0, 35, 35));
-					break;
-				}
-				}
-
-				x += dx*time; //движение по “X”
-				checkCollisionWithMap(dx, 0);//обрабатываем столкновение по Х
-
-				y += dy*time; //движение по “Y”
-				checkCollisionWithMap(0, dy);//обрабатываем столкновение по Y
-
-				sprite.setPosition(x, y); //спрайт в позиции (x, y).
-
-				if (health <= 0) { life = false; }//если жизней меньше 0, либо равно 0, то умираем
-			}
-		}
-	}
-};//класс Enemy закрыт
-
-
-
 
 int main()
 {
@@ -136,16 +36,17 @@ int main()
 	Clock gameTimeClock;//хранит игровое время
 	int gameTime = 0; //игровое время
 
-	Image heroImage;
-	heroImage.loadFromFile("images/pacman.png");// загрузка изображения игрока
+
 	Image EnemyImage[3];
 	EnemyImage[2].loadFromFile("images/enemypac.png"); // загружаем изображение врага
 	EnemyImage[1].loadFromFile("images/enemypac1.png"); // загружаем изображение врага
 	EnemyImage[0].loadFromFile("images/enemypac2.png"); // загружаем изображение врага
 
+	Image image_pac;
+	image_pac.loadFromFile("images/pacman.png");// загрузка изображения игрока
 
-	Player p(heroImage, 250, 250, 35, 35, "Pacman");
-	
+	Player p(image_pac, 250, 250, 35, 35, "Pacman");
+
 	std::list<Entity*>  enemies; //список врагов
 	std::list<Entity*>::iterator it; //итератор чтобы проходить по элементам списка
 
@@ -153,7 +54,7 @@ int main()
 	int enemiesCount = 0;      //текущее количество врагов в игре
 
 							   //Заполняем список объектами врагами
-	for (int i = 0; i < ENEMY_COUNT ; i++)
+	for (int i = 0; i < ENEMY_COUNT; i++)
 	{
 		float xr = 150 + rand() % 500; //случайная координата врага на поле игры по оси “x”
 		float yr = 150 + rand() % 350; //случайная координата врага на поле игры по оси “y”
@@ -161,7 +62,6 @@ int main()
 		enemies.push_back(new Enemy(EnemyImage[i], xr, yr, 35, 35, "Enemy1"));
 		enemiesCount += 1; //увеличили счётчик врагов
 	}
-
 
 	int createObjectForMapTimer = 0;//Переменная под время для генерирования камней
 
@@ -222,8 +122,6 @@ int main()
 				if (TileMap[i][j] == 'h')  s_map.setTextureRect(IntRect(37, 0, 37, 37));//если встретили символ "h", то рисуем 2й квадратик - money 
 				if ((TileMap[i][j] == '0')) s_map.setTextureRect(IntRect(74, 0, 37, 37));//если "0" ... - stena
 
-
-
 				s_map.setPosition(j * 37, i * 37);//раскладываем квадратики в карту.
 
 				window.draw(s_map);//рисуем квадратики на экран
@@ -243,7 +141,7 @@ int main()
 		text.setPosition(250, 10);//задаем позицию текста
 		window.draw(text);//рисуем этот текст
 
-		if (p.health <= 1 ) {// ну тип игру прошли, если 1000 рублей собрали...
+		if (p.health <= 1) {// ну тип игру прошли, если 1000 рублей собрали...
 			window.clear();
 			text.setString("YOU LOSE");
 			text.setPosition(300, 200);//задаем позицию текста
@@ -257,7 +155,6 @@ int main()
 			window.draw(text);//рисуем этот текст
 		}
 
-
 		if ((p.money < p.money1) && (p.health > 0)) {
 			window.draw(p.sprite);//рисуем спрайт объекта “p” класса “Player”
 								  //рисуем врагов
@@ -268,9 +165,8 @@ int main()
 				window.draw((*it)->sprite); //рисуем enemies объекты
 			}
 		}
-		
 
-	window.display();
-}
+		window.display();
+	}
 	return 0;
 }
